@@ -9,7 +9,7 @@ Prerequisites:
 1. Clone the GitHub repository:
 
     ```
-    git clone https://github.com/digitalai-security/onboarding-task-2.git
+    git clone https://github.com/Matas28731449/my-tiny-vm.git
     ```
    
 2. Open the project with an IDE of your choice:
