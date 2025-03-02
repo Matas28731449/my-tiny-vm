@@ -88,6 +88,7 @@ TEST(Program, fibonacciSequenceLoopCount) {
     c.add(res_reg, a_reg, b_reg);
     c.cp(a_reg, b_reg);
     c.cp(b_reg, res_reg);
+    c.inc(i_reg);
     c.eq(eq_reg, i_reg, n_reg);
     c.jne(eq_reg, "loop");
 
