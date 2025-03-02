@@ -72,12 +72,6 @@ TEST(Program, fibonacciSequenceLoopCount) {
     cpp_vm::VM vm;
     cpp_vm::Compiler c;
 
-    // Registers:
-    // i_reg: loop counter
-    // n_reg: total number of iterations (10)
-    // a_reg, b_reg: current Fibonacci numbers
-    // res_reg: holds the sum (next Fibonacci number)
-    // eq_reg: used for comparison
     constexpr types::u8 i_reg = 0;
     constexpr types::u8 n_reg = 1;
     constexpr types::u8 a_reg = 2;
@@ -85,23 +79,16 @@ TEST(Program, fibonacciSequenceLoopCount) {
     constexpr types::u8 res_reg = 4;
     constexpr types::u8 eq_reg = 5;
 
-    // Initialize Fibonacci sequence with F(0)=0, F(1)=1
     c.set(a_reg, 0);
     c.set(b_reg, 1);
     c.set(i_reg, 0);
     c.set(n_reg, 10);
 
     c.label("loop");
-    // Compute next Fibonacci number: res = a + b
     c.add(res_reg, a_reg, b_reg);
-    // Shift: a <- b, b <- res
     c.cp(a_reg, b_reg);
     c.cp(b_reg, res_reg);
-    // Increment loop counter
-    c.inc(i_reg);
-    // Compare counter with total iterations
     c.eq(eq_reg, i_reg, n_reg);
-    // Continue looping until i_reg equals n_reg
     c.jne(eq_reg, "loop");
 
     c.ret();
@@ -113,41 +100,29 @@ TEST(Program, fibonacciSequenceLoopCount) {
     ASSERT_EQ(vm.getRegisterValue(b_reg), 89);
 }
 
-TEST(Program, fibonacciSequenceTargetValue) {
+TEST(Program, maxLimitHandling) {
     cpp_vm::VM vm;
     cpp_vm::Compiler c;
 
-    // Registers:
-    // a_reg, b_reg: current Fibonacci numbers (starting with 1,1)
-    // c_reg: temporary register for sum
-    // eq_reg: used for comparing b_reg with the target Fibonacci number
-    // target_reg: the Fibonacci number to reach (144)
-    constexpr types::u8 a_reg = 0;
-    constexpr types::u8 b_reg = 1;
-    constexpr types::u8 c_reg = 2;
+    constexpr types::u8 max_reg = 0;
+    constexpr types::u8 min_reg = 1;
+    constexpr types::u8 temp_reg = 2;
     constexpr types::u8 eq_reg = 3;
-    constexpr types::u8 target_reg = 4;
 
-    c.set(a_reg, 1);
-    c.set(b_reg, 1);
-    c.set(target_reg, 144);
+    c.set(max_reg, 32767);
+    c.set(min_reg, -32768);
 
-    c.label("loop");
-    // Compute next Fibonacci number: c_reg = a + b
-    c.add(c_reg, a_reg, b_reg);
-    // Shift: a <- b, b <- c_reg
-    c.cp(a_reg, b_reg);
-    c.cp(b_reg, c_reg);
-    // Check if the current Fibonacci number equals the target
-    c.eq(eq_reg, b_reg, target_reg);
-    // If not equal, continue the loop
-    c.jne(eq_reg, "loop");
+    c.add(temp_reg, max_reg, 1);
+    c.eq(eq_reg, temp_reg, min_reg);
+    c.out(temp_reg);
 
-    c.out(b_reg);
+    c.sub(temp_reg, min_reg, 1);
+    c.eq(eq_reg, temp_reg, max_reg);
+    c.out(temp_reg);
+
     c.ret();
 
     vm.run(c.getByteCode());
 
-    // After looping, b_reg should equal 144
-    ASSERT_EQ(vm.getRegisterValue(b_reg), 144);
+    ASSERT_EQ(vm.getRegisterValue(temp_reg), max_reg);
 }
